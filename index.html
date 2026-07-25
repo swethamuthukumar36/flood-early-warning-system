@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>River Flood Early-Warning — Control Room Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="eyebrow">CONTROL ROOM · LIVE FEED</div>
+    <h1>River Flood Early-Warning System</h1>
+    <p class="subtitle">3 monitoring points along the river · readings refresh every 8 seconds</p>
+  </header>
+
+  <div id="alertBanner" class="alert-banner"></div>
+
+  <section id="summaryCards" class="summary-cards"></section>
+
+  <main>
+    <section class="controls">
+      <input id="search" type="text" placeholder="Search by ID, location, or device...">
+      <select id="statusFilter">
+        <option value="All">All statuses</option>
+        <option value="Normal">Normal</option>
+        <option value="Warning">Warning</option>
+        <option value="Danger">Danger</option>
+        <option value="Faulty">Faulty</option>
+      </select>
+      <span id="count" class="count"></span>
+    </section>
+
+    <div id="loading" class="state-msg">Loading readings…</div>
+    <div id="empty" class="state-msg" style="display:none">No records match your search/filter.</div>
+
+    <table class="main-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Location</th><th>Level</th><th>Status</th><th>Recorded At</th><th>Device</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <section id="detailPanel" class="detail-panel" style="display:none"></section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
