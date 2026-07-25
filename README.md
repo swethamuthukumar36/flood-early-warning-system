@@ -87,6 +87,6 @@ Two versions are included, both using the same field names so device output and 
 
 ## 🎥 Demo video
 
-📺 [Watch the demo here](PASTE_YOUR_VIDEO_LINK_HERE)
+📺 [Watch the demo here](https://drive.google.com/file/d/1jmeyo2mzsND0ckgczxxz4X-QNv_lv_6-/view?usp=drive_link)
 
 
