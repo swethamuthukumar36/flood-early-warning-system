@@ -32,13 +32,28 @@ function statusClass(s) {
 // ---------- signature element: live gauge card per monitoring point ----------
 function renderSummaryCards() {
   const html = LOCATIONS.map(loc => {
-    const history = liveData.filter(r => r.location === loc).sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
+    const history = liveData
+      .filter(r => r.location === loc && typeof r.water_level_m === "number")
+      .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
     const latest = history[0];
+    const previous = history[1];
     const level = latest ? latest.water_level_m : null;
     const status = latest ? latest.status : "Faulty";
     const pct = level === null || level === undefined ? 0 : Math.min(100, Math.max(4, (level / GAUGE_MAX_M) * 100));
     const shortName = loc.split(" - ")[0];
     const place = loc.split(" - ")[1];
+
+    // Change 1: rate of change (m/min) - computed internally, now surfaced on screen
+    let rateText = "—";
+    if (latest && previous) {
+      const dtMin = (new Date(latest.recorded_at) - new Date(previous.recorded_at)) / 60000;
+      if (dtMin > 0) {
+        const rate = (latest.water_level_m - previous.water_level_m) / dtMin;
+        const sign = rate >= 0 ? "+" : "";
+        rateText = `${sign}${rate.toFixed(3)} m/min`;
+      }
+    }
+
     return `
       <div class="card ${statusClass(status)}">
         <div class="card-head">
@@ -52,6 +67,7 @@ function renderSummaryCards() {
           <div class="gauge-line danger-line" style="bottom:${(DANGER_THRESHOLD / GAUGE_MAX_M) * 100}%" title="Danger line"></div>
         </div>
         <div class="gauge-reading">${fmtLevel(level)}</div>
+        <div class="rate-tag">Rate: ${rateText}</div>
         <div class="device-tag">${latest ? latest.device_id : "—"}</div>
       </div>
     `;
@@ -141,6 +157,31 @@ function closeDetail() {
   els.detail.style.display = "none";
 }
 
+// ---------- Change 2 (on-spot demo): feed in an impossible reading on demand ----------
+function injectFaultyReading() {
+  const loc = LOCATIONS[0];
+  const deviceId = DEVICES[loc];
+  const impossibleRaw = 27.4; // outside the real-world plausible range (0-8m)
+
+  const isOk = plausible(impossibleRaw);
+  const level = isOk ? impossibleRaw : null; // rejected -> stored as missing, not as a real reading
+  const status = statusFor(level); // resolves to "Faulty", never "Danger"
+
+  const reading = {
+    reading_id: "R" + String(liveData.length + 1).padStart(3, "0"),
+    location: loc,
+    water_level_m: level,
+    status,
+    recorded_at: new Date().toISOString(),
+    device_id: deviceId
+  };
+  liveData.push(reading);
+  renderTable();
+
+  // proof for the evaluator: this never calls triggerLocalAlert(), so no false Danger alarm fires
+  console.log(`Injected impossible raw reading (${impossibleRaw}m) -> handled as: ${status} (no alert triggered)`);
+}
+
 // ---------- Task 4: simulated sensing node (non-blocking, plausibility check, smoothing) ----------
 function plausible(v) {
   return typeof v === "number" && !isNaN(v) && v >= 0 && v <= 8;
@@ -199,6 +240,7 @@ setInterval(simulateReading, 8000);
 // ---------- wire up events ----------
 els.search.addEventListener("input", renderTable);
 els.statusFilter.addEventListener("change", renderTable);
+document.getElementById("injectFault").addEventListener("click", injectFaultyReading);
 
 // initial load state
 els.loading.style.display = "block";

@@ -101,7 +101,15 @@ h1 {
 }
 .gauge-line.danger-line { background: rgba(239,85,85,.7); border-top-color: rgba(239,85,85,.7); }
 .gauge-reading { font-family: var(--font-mono); font-size: 18px; font-weight: 500; }
+.rate-tag { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
 .device-tag { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+
+.fault-btn {
+  padding: 8px 14px; border-radius: 8px; border: 1px solid var(--faulty);
+  background: transparent; color: var(--muted); font-family: var(--font-mono);
+  font-size: 12px; cursor: pointer;
+}
+.fault-btn:hover { border-color: var(--danger); color: var(--danger); }
 
 main { padding: 10px 28px 48px; max-width: 1000px; }
 .controls { display: flex; gap: 10px; align-items: center; margin: 16px 0 12px; flex-wrap: wrap; }
